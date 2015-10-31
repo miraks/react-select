@@ -11,7 +11,6 @@ var Option = React.createClass({
 		option: React.PropTypes.object.isRequired,     // object that is base for that option
 		renderFunc: React.PropTypes.func               // method passed to ReactSelect component to render label text
 	},
-
 	blockEvent (event) {
 		event.preventDefault();
 		if ((event.target.tagName !== 'A') || !('href' in event.target)) {
@@ -24,7 +23,15 @@ var Option = React.createClass({
 			window.location.href = event.target.href;
 		}
 	},
-
+	handleMouseDown (e) {
+		this.props.mouseDown(this.props.option, e);
+	},
+	handleMouseEnter (e) {
+		this.props.mouseEnter(this.props.option, e);
+	},
+	handleMouseLeave (e) {
+		this.props.mouseLeave(this.props.option, e);
+	},
 	render () {
 		var option = this.props.option;
 		var label = option.create ? this.props.addLabelText.replace('{label}', option.label) : this.props.renderFunc(option);
@@ -39,10 +46,10 @@ var Option = React.createClass({
 		) : (
 			<div className={optionClasses}
 				style={option.style}
-				onMouseEnter={this.props.mouseEnter}
-				onMouseLeave={this.props.mouseLeave}
-				onMouseDown={this.props.mouseDown}
-				onClick={this.props.mouseDown}
+				onMouseDown={this.handleMouseDown}
+				onMouseEnter={this.handleMouseEnter}
+				onMouseLeave={this.handleMouseLeave}
+				onClick={this.handleMouseDown}
 				title={option.title}>
 				{label}
 			</div>

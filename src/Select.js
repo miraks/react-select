@@ -437,9 +437,15 @@ var Select = React.createClass({
 	},
 
 	handleInputBlur (event) {
+		var menuDOM = ReactDOM.findDOMNode(this.refs.menu);
+		if (document.activeElement.isEqualNode(menuDOM)) {
+			return;
+		}
+
 		this._blurTimeout = setTimeout(() => {
 			if (this._focusAfterUpdate || !this.isMounted()) return;
 			this.setState({
+				inputValue: '',
 				isFocused: false,
 				isOpen: false
 			});
@@ -704,10 +710,13 @@ var Select = React.createClass({
 		}
 	},
 
+	renderOptionLabel (op) {
+		return op[this.props.labelKey];
+	},
+
 	buildMenu () {
 		var focusedValue = this.state.focusedOption ? this.state.focusedOption[this.props.valueKey] : null;
-		var renderLabel = this.props.optionRenderer;
-		if (!renderLabel) renderLabel = (op) => op[this.props.labelKey];
+		var renderLabel = this.props.optionRenderer || this.renderOptionLabel;
 		if (this.state.filteredOptions.length > 0) {
 			focusedValue = focusedValue == null ? this.state.filteredOptions[0] : focusedValue;
 		}
@@ -734,17 +743,13 @@ var Select = React.createClass({
 				'is-disabled': op.disabled
 			});
 			var ref = isFocused ? 'focused' : null;
-			var mouseEnter = this.focusOption.bind(this, op);
-			var mouseLeave = this.unfocusOption.bind(this, op);
-			var mouseDown = this.selectValue.bind(this, op);
 			var optionResult = React.createElement(this.props.optionComponent, {
 				key: 'option-' + op[this.props.valueKey],
 				className: optionClass,
 				renderFunc: renderLabel,
-				mouseEnter: mouseEnter,
-				mouseLeave: mouseLeave,
-				mouseDown: mouseDown,
-				click: mouseDown,
+				mouseDown: this.selectValue,
+				mouseEnter: this.focusOption,
+				mouseLeave: this.unfocusOption,
 				addLabelText: this.props.addLabelText,
 				option: op,
 				ref: ref
